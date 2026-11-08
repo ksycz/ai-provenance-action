@@ -4,7 +4,7 @@ import { ACTION_NAME, actionVersion } from "./core/version.js";
 
 async function run(): Promise<void> {
   info(
-    `${ACTION_NAME} v${actionVersion(process.env.ACTION_VERSION)} (scaffold — detection core not wired yet)`,
+    `${ACTION_NAME} v${actionVersion(process.env.ACTION_VERSION)} (scaffold — detection core not wired yet, stale-dist check)`,
   );
 
   core.setOutput("ai_tagged", "false");
