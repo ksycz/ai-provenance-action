@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "2",
+  "thresholds": {
+    "high": 80,
+    "low": 60
+  },
+  "files": {
+    "e2e/scenarios/ai-fail.ts": {
+      "language": "typescript",
+      "source": "export function discount(total: number, member: boolean): number {\n  return member && total > 100 ? 10 : 0;\n}\n",
+      "mutants": [
+        {
+          "id": "1",
+          "mutatorName": "LogicalOperator",
+          "replacement": "member || total > 100",
+          "status": "Killed",
+          "location": {
+            "start": {
+              "line": 2,
+              "column": 9
+            },
+            "end": {
+              "line": 2,
+              "column": 40
+            }
+          }
+        },
+        {
+          "id": "2",
+          "mutatorName": "EqualityOperator",
+          "replacement": "total >= 100",
+          "status": "Survived",
+          "location": {
+            "start": {
+              "line": 2,
+              "column": 9
+            },
+            "end": {
+              "line": 2,
+              "column": 40
+            }
+          }
+        },
+        {
+          "id": "3",
+          "mutatorName": "ConditionalExpression",
+          "replacement": "true",
+          "status": "Survived",
+          "location": {
+            "start": {
+              "line": 2,
+              "column": 9
+            },
+            "end": {
+              "line": 2,
+              "column": 40
+            }
+          }
+        },
+        {
+          "id": "4",
+          "mutatorName": "ArithmeticOperator",
+          "replacement": "5",
+          "status": "Survived",
+          "location": {
+            "start": {
+              "line": 2,
+              "column": 9
+            },
+            "end": {
+              "line": 2,
+              "column": 40
+            }
+          }
+        }
+      ]
+    }
+  }
+}
