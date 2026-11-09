@@ -47,7 +47,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-      - uses: ksycz/ai-provenance-action@v1 # not released yet
+      - uses: ksycz/ai-provenance-action@v1
         with:
           pr-comment: "true"
 ```
@@ -133,7 +133,7 @@ The report can serve as evidence that **supports** controls in these standards. 
 
 ## Project status
 
-Phases 0–6 of the [roadmap](./docs/ROADMAP.md) are complete: the Action runs end to end and is tested on this repository's own pull requests ([docs/scenarios.md](./docs/scenarios.md)). Next is the first release, `v1`. Until then, reference a commit SHA instead of `@v1`.
+`v1.0.0` is [released](https://github.com/ksycz/ai-provenance-action/releases/tag/v1.0.0): use `ksycz/ai-provenance-action@v1` to get every `v1.x` update, or pin a commit SHA for full control. Phases 0–7 of the [roadmap](./docs/ROADMAP.md) are complete, and the Action is tested on this repository's own pull requests ([docs/scenarios.md](./docs/scenarios.md)). Changes are listed in the [CHANGELOG](./CHANGELOG.md).
 
 ## Development
 
