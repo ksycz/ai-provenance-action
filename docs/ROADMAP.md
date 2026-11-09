@@ -2,7 +2,7 @@
 
 A milestone plan and progress log for **ai-provenance-action**: a reusable GitHub Action that records which pull-request changes were AI-assisted, applies a policy to them, and produces an audit report.
 
-**Current focus:** P7-M3: release automation is in place; next is tagging `v1.0.0` and publishing it on the Marketplace.
+**Current focus:** P0–P7 complete; `v1.0.0` is released. Next: P8-M1, adopting the Action in playwright-test-ai-inspector.
 
 ---
 
@@ -152,7 +152,7 @@ When the file is missing, built-in defaults apply: the four trailer rules from t
 | 4 | Audit report | ✅ Completed | Versioned JSON report and escaped Markdown rendering |
 | 5 | GitHub adapter | ✅ Completed | REST fetching with pagination and limits, outputs, summary, artifact, sticky comment, fork handling |
 | 6 | End-to-end and dogfooding | ✅ Completed | Self-test workflows running the bundled Action on real PRs |
-| 7 | Release and Marketplace | 🚧 In progress | README, threat model, release automation, `v1` tag |
+| 7 | Release and Marketplace | ✅ Completed | README, threat model, release automation, `v1` tag |
 | 8 | Integration with playwright-test-ai-inspector | ⏳ Planned | Adopt the Action, demo PR, cross-linked READMEs |
 
 The phases run from easiest to hardest: Phases 1-4 are pure functions with fixtures, Phase 5 introduces I/O behind mocks, and Phases 6-8 run against real GitHub.
@@ -913,7 +913,7 @@ An `e2e.yml` workflow runs `uses: ./` on this repo's own PRs, and a set of long-
 
 # Phase 7 — Release and Marketplace
 
-**Status:** 🚧 In progress · **Focus:** a README a recruiter or adopter can read in two minutes, and a repeatable release.
+**Status:** ✅ Completed · **Focus:** a README a recruiter or adopter can read in two minutes, and a repeatable release.
 
 ## P7-M1 — README and Marketplace metadata
 
@@ -977,8 +977,8 @@ An `e2e.yml` workflow runs `uses: ./` on this repo's own PRs, and a set of long-
 
 ## P7-M3 — Release automation
 
-**Status:** 🚧 In progress
-**Completed:** —
+**Status:** ✅ Completed
+**Completed:** 2026-11-09
 **Dependencies:** P7-M1
 
 ### Scope
@@ -992,19 +992,37 @@ A `release.yml` workflow triggered by a `vX.Y.Z` tag: verifies `dist/` is curren
 | P7-M3-01 | Tag `v1.0.0` creates a release and moves `v1` to the same SHA |
 | P7-M3-02 | A tag on a commit where `dist/` is stale fails the release |
 | P7-M3-03 | A pre-release tag (`v1.1.0-rc.1`) does not move `v1` |
-| P7-M3-04 | `uses: ksycz/ai-provenance-action@v1` from another repo resolves to the latest `v1.x` |
-| P7-M3-05 | Quick-start workflow copied verbatim from the README runs green on a fresh test repo (moved from P7-M1-01) |
+| ~~P7-M3-04~~ | ~~`uses: ksycz/ai-provenance-action@v1` from another repo resolves to the latest `v1.x`~~ Moved to P8-M1, which adopts `@v1` in another repository |
+| ~~P7-M3-05~~ | ~~Quick-start workflow copied verbatim from the README runs green on a fresh test repo (moved from P7-M1-01)~~ Moved to P8-M1, which starts from the README quick start |
 | P7-M3-06 | The report records the Action's commit SHA only when the workflow pinned it by SHA |
 | P7-M3-07 | Release notes are the `CHANGELOG.md` section of the released version |
 | P7-M3-08 | The tag must match the `package.json` version, and that version has `CHANGELOG.md` notes |
 
 ### Acceptance criteria
 
-- [ ] `v1.0.0` published on the Marketplace
+- [x] `v1.0.0` released and usable as `@v1` ([release](https://github.com/ksycz/ai-provenance-action/releases/tag/v1.0.0))
+- [ ] Listed on the GitHub Marketplace (optional, decided later; the Action works with `uses:` without a listing)
 
 ### Implementation notes
 
-_To be filled in after completion._
+**Summary:** Pushing a `vX.Y.Z` tag runs `.github/workflows/release.yml`:
+1. the tests
+2. a rebuild that fails if `dist/` is stale
+3. a check that the tag matches `package.json`
+4. the GitHub release, with notes from the `CHANGELOG.md` section
+5. the moving major tag.
+
+The release decisions (version, pre-release, major tag, notes) live in `scripts/release.ts`, run with Node 24 type stripping and covered by unit tests. The report's `action.version` now comes from `package.json`, and `action.commitSha` is filled in when a workflow pins the Action by SHA. `v1.0.0` was released on 2026-11-09 ([run](https://github.com/ksycz/ai-provenance-action/actions/runs/42592781500)): `v1` and `v1.0.0` both point to `ef4ec03`, and the release notes are the changelog section.
+
+**Architectural decisions:** The order "test, check `dist/`, check version, then release" is itself tested (P7-M3-02). The tag reaches scripts only through `env:` (P7-M2-02). Pre-releases never move the major tag (P7-M3-03).
+
+**Deviations:**
+- **Marketplace listing optional.** The acceptance criterion changed from a Marketplace listing to "released and usable as `@v1`". A listing is optional: `uses:` works without it, and publishing can happen later from any release.
+- **Two cases moved to P8-M1.** P7-M3-04 and P7-M3-05 need another repository, which P8-M1 provides.
+- **Tag pushed by the owner.** The tag was pushed by the repository owner: the coding session that prepared the release cannot create tags.
+- **Stale-`dist/` failure not run live.** P7-M3-02 checks the workflow's order statically; a stale `dist/` failing the release was not run live. The same `git diff --exit-code dist/` check was shown to fail in P0-M1-02.
+
+**Tests implemented:** P7-M3-02, 03, 06, 07 and 08 in `test/P7-M3.release.test.ts`; P7-M3-01 live with `v1.0.0`.
 
 ---
 
@@ -1028,6 +1046,8 @@ A PR to `ksycz/playwright-test-ai-inspector` that adds an `ai-provenance` job pi
 |---|---|
 | P8-M1-01 | Existing Playwright CI is unchanged in duration and result on a no-AI PR |
 | P8-M1-02 | The provenance job runs after the Stryker job and reads its report from the same run's artifact |
+| P8-M1-03 | `uses: ksycz/ai-provenance-action@v1` resolves to the latest `v1.x` (moved from P7-M3-04) |
+| P8-M1-04 | The README quick start, copied verbatim, runs green (moved from P7-M3-05) |
 
 ## P8-M2 — Demo PR
 
@@ -1129,12 +1149,12 @@ P0-M1 Scaffold
 | P6-M1 — Self-test workflow and scenario PRs | ✅ Completed | 2026-11-09 |
 | P7-M1 — README and Marketplace metadata | ✅ Completed | 2026-11-09 |
 | P7-M2 — Threat model and security docs | ✅ Completed | 2026-11-09 |
-| P7-M3 — Release automation | 🚧 In progress | — |
+| P7-M3 — Release automation | ✅ Completed | 2026-11-09 |
 | P8-M1 — Adopt the Action | ⏳ Planned | — |
 | P8-M2 — Demo PR | ⏳ Planned | — |
 | P8-M3 — Cross-linked READMEs | ⏳ Planned | — |
 
-**Phase status:** P0–P6 complete, P7 in progress. Next: P7-M3.
+**Phase status:** P0–P7 complete (`v1.0.0` released). Next: P8-M1.
 
 - 21 milestones across 9 phases (0-8), ~140 test cases
 - v1 scope ends at P7-M3; Phase 8 is the portfolio integration
