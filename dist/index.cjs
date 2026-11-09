@@ -33749,9 +33749,9 @@ var artifactTwirpClient = {};
 
 var userAgent$5 = {};
 
-var version = "2.3.2";
+var version$1 = "2.3.2";
 var require$$0$4 = {
-	version: version};
+	version: version$1};
 
 var hasRequiredUserAgent$2;
 
@@ -227246,6 +227246,15 @@ const DEFAULT_ACTION_VERSION = "0.0.0";
 function actionVersion(envVersion) {
     return envVersion?.trim() || DEFAULT_ACTION_VERSION;
 }
+/**
+ * The Action's own commit SHA, when the workflow pinned it by SHA
+ * (`uses: owner/repo@<sha>`, so GITHUB_ACTION_REF is that SHA). A tag such as
+ * `v1` or a branch name is not a commit SHA, so it gives null.
+ */
+function actionCommitSha(actionRef) {
+    const ref = actionRef?.trim() ?? "";
+    return /^([0-9a-f]{40}|[0-9a-f]{64})$/.test(ref) ? ref : null;
+}
 
 /**
  * Extract Git-style trailers from a commit message.
@@ -239750,7 +239759,11 @@ async function produceReport(deps) {
     }, base.config, GATES);
     return buildReport({
         generatedAt: deps.now(),
-        action: { name: ACTION_NAME, version: deps.actionVersion, commitSha: null },
+        action: {
+            name: ACTION_NAME,
+            version: deps.actionVersion,
+            commitSha: deps.actionCommitSha,
+        },
         run: {
             repository: `${context.repo.owner}/${context.repo.repo}`,
             workflow: context.workflow,
@@ -239848,6 +239861,10 @@ async function run(deps) {
     }
 }
 
+var version = "1.0.0";
+var packageJson = {
+	version: version};
+
 /** Entry point: build the real dependencies from the runner and hand them to run(). */
 async function main() {
     const context = githubExports.context;
@@ -239882,7 +239899,8 @@ async function main() {
             runAttempt: Number(process.env.GITHUB_RUN_ATTEMPT) || 1,
         },
         workspace: process.env.GITHUB_WORKSPACE ?? process.cwd(),
-        actionVersion: actionVersion(process.env.ACTION_VERSION),
+        actionVersion: actionVersion(packageJson.version),
+        actionCommitSha: actionCommitSha(process.env.GITHUB_ACTION_REF),
         now: () => new Date(),
     });
 }

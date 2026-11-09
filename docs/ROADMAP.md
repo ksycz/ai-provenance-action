@@ -2,7 +2,7 @@
 
 A milestone plan and progress log for **ai-provenance-action**: a reusable GitHub Action that records which pull-request changes were AI-assisted, applies a policy to them, and produces an audit report.
 
-**Current focus:** P0–P6, P7-M1 and P7-M2 complete. Next: P7-M3 release automation and `v1`.
+**Current focus:** P7-M3: release automation is in place; next is tagging `v1.0.0` and publishing it on the Marketplace.
 
 ---
 
@@ -977,7 +977,7 @@ An `e2e.yml` workflow runs `uses: ./` on this repo's own PRs, and a set of long-
 
 ## P7-M3 — Release automation
 
-**Status:** ⏳ Planned
+**Status:** 🚧 In progress
 **Completed:** —
 **Dependencies:** P7-M1
 
@@ -994,6 +994,9 @@ A `release.yml` workflow triggered by a `vX.Y.Z` tag: verifies `dist/` is curren
 | P7-M3-03 | A pre-release tag (`v1.1.0-rc.1`) does not move `v1` |
 | P7-M3-04 | `uses: ksycz/ai-provenance-action@v1` from another repo resolves to the latest `v1.x` |
 | P7-M3-05 | Quick-start workflow copied verbatim from the README runs green on a fresh test repo (moved from P7-M1-01) |
+| P7-M3-06 | The report records the Action's commit SHA only when the workflow pinned it by SHA |
+| P7-M3-07 | Release notes are the `CHANGELOG.md` section of the released version |
+| P7-M3-08 | The tag must match the `package.json` version, and that version has `CHANGELOG.md` notes |
 
 ### Acceptance criteria
 
@@ -1126,7 +1129,7 @@ P0-M1 Scaffold
 | P6-M1 — Self-test workflow and scenario PRs | ✅ Completed | 2026-11-09 |
 | P7-M1 — README and Marketplace metadata | ✅ Completed | 2026-11-09 |
 | P7-M2 — Threat model and security docs | ✅ Completed | 2026-11-09 |
-| P7-M3 — Release automation | ⏳ Planned | — |
+| P7-M3 — Release automation | 🚧 In progress | — |
 | P8-M1 — Adopt the Action | ⏳ Planned | — |
 | P8-M2 — Demo PR | ⏳ Planned | — |
 | P8-M3 — Cross-linked READMEs | ⏳ Planned | — |

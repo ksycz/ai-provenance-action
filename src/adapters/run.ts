@@ -44,6 +44,8 @@ export type ActionDeps = {
   context: EventContext & { workflow: string; runId: number; runAttempt: number };
   workspace: string;
   actionVersion: string;
+  /** The Action's own commit SHA when it was pinned by SHA, else null. */
+  actionCommitSha: string | null;
   now: () => Date;
   sleep?: (ms: number) => Promise<void>;
 };
@@ -149,7 +151,11 @@ async function produceReport(deps: ActionDeps): Promise<Report> {
 
   return buildReport({
     generatedAt: deps.now(),
-    action: { name: ACTION_NAME, version: deps.actionVersion, commitSha: null },
+    action: {
+      name: ACTION_NAME,
+      version: deps.actionVersion,
+      commitSha: deps.actionCommitSha,
+    },
     run: {
       repository: `${context.repo.owner}/${context.repo.repo}`,
       workflow: context.workflow,
