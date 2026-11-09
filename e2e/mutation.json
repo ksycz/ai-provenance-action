@@ -1,0 +1,95 @@
+{
+  "schemaVersion": "2",
+  "thresholds": {
+    "high": 80,
+    "low": 60
+  },
+  "files": {
+    "e2e/scenarios/ai-pass.ts": {
+      "language": "typescript",
+      "source": "export function isFreeShipping(total: number): boolean {\n  return total >= 50;\n}\n",
+      "mutants": [
+        {
+          "id": "1",
+          "mutatorName": "EqualityOperator",
+          "replacement": "total > 50",
+          "status": "Killed",
+          "location": {
+            "start": {
+              "line": 2,
+              "column": 9
+            },
+            "end": {
+              "line": 2,
+              "column": 20
+            }
+          }
+        },
+        {
+          "id": "2",
+          "mutatorName": "EqualityOperator",
+          "replacement": "total < 50",
+          "status": "Killed",
+          "location": {
+            "start": {
+              "line": 2,
+              "column": 9
+            },
+            "end": {
+              "line": 2,
+              "column": 20
+            }
+          }
+        },
+        {
+          "id": "3",
+          "mutatorName": "ConditionalExpression",
+          "replacement": "true",
+          "status": "Killed",
+          "location": {
+            "start": {
+              "line": 2,
+              "column": 9
+            },
+            "end": {
+              "line": 2,
+              "column": 20
+            }
+          }
+        },
+        {
+          "id": "4",
+          "mutatorName": "ConditionalExpression",
+          "replacement": "false",
+          "status": "Killed",
+          "location": {
+            "start": {
+              "line": 2,
+              "column": 9
+            },
+            "end": {
+              "line": 2,
+              "column": 20
+            }
+          }
+        },
+        {
+          "id": "5",
+          "mutatorName": "ArithmeticOperator",
+          "replacement": "total >= 49",
+          "status": "Survived",
+          "location": {
+            "start": {
+              "line": 2,
+              "column": 9
+            },
+            "end": {
+              "line": 2,
+              "column": 20
+            }
+          }
+        }
+      ]
+    }
+  }
+}
