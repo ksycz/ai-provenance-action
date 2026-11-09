@@ -2,7 +2,7 @@
 
 A milestone plan and progress log for **ai-provenance-action**: a reusable GitHub Action that records which pull-request changes were AI-assisted, applies a policy to them, and produces an audit report.
 
-**Current focus:** P0–P6 and P7-M1 complete. Next: P7-M2 threat model and security docs.
+**Current focus:** P0–P6, P7-M1 and P7-M2 complete. Next: P7-M3 release automation and `v1`.
 
 ---
 
@@ -953,8 +953,8 @@ An `e2e.yml` workflow runs `uses: ./` on this repo's own PRs, and a set of long-
 
 ## P7-M2 — Threat model and security docs
 
-**Status:** ⏳ Planned
-**Completed:** —
+**Status:** ✅ Completed
+**Completed:** 2026-11-09
 **Dependencies:** P6-M1
 
 ### Scope
@@ -963,11 +963,17 @@ An `e2e.yml` workflow runs `uses: ./` on this repo's own PRs, and a set of long-
 
 ### Acceptance criteria
 
-- [ ] Every threat links to the test IDs that cover it
+- [x] Every threat links to the test IDs that cover it (enforced by P7-M2-01)
 
 ### Implementation notes
 
-_To be filled in after completion._
+**Summary:** `docs/threat-model.md` opens with a "who controls what" table (PR author, base-branch maintainers, GitHub, earlier jobs). It then covers ten threats, each with what the Action does, the tests that cover it and what is left for the adopting team: spoofed or missing trailers, a PR weakening its own policy, Markdown and mention injection, a faked PR comment, fork PRs and the read-only token, ReDoS through config regexes, a forged mutation report, path traversal through inputs, script injection in workflows using the outputs, and truncated data on very large PRs. `SECURITY.md` explains private vulnerability reporting and links the threat model.
+
+**Architectural decisions:** The acceptance criterion is a test. P7-M2-01 requires every threat section to cite at least one test ID, and every cited ID to exist in the test suite or in `docs/scenarios.md`, so the threat model cannot drift from the tests. Script injection had no test, so P7-M2-02 scans the workflow files and fails on any `${{ }}` expression inside a `run:` command, inline or in a block.
+
+**Deviations:** Path traversal and workflow script injection are added beyond the scope list. The forged-mutation-report entry is candid that the gate is only as trustworthy as the job that wrote the report, and points out that this repository's scenario PRs commit a report on purpose, as fixtures. Each new test was shown to fail on a missing test ID, a threat without tests, and inline and multi-line injection.
+
+**Tests implemented:** P7-M2-01, P7-M2-02 and P7-M2-03 in `test/P7-M2.threat-model.test.ts`.
 
 ## P7-M3 — Release automation
 
@@ -1119,13 +1125,13 @@ P0-M1 Scaffold
 | P5-M4 — Sticky PR comment and fork PRs | ✅ Completed | 2026-11-08 |
 | P6-M1 — Self-test workflow and scenario PRs | ✅ Completed | 2026-11-09 |
 | P7-M1 — README and Marketplace metadata | ✅ Completed | 2026-11-09 |
-| P7-M2 — Threat model and security docs | ⏳ Planned | — |
+| P7-M2 — Threat model and security docs | ✅ Completed | 2026-11-09 |
 | P7-M3 — Release automation | ⏳ Planned | — |
 | P8-M1 — Adopt the Action | ⏳ Planned | — |
 | P8-M2 — Demo PR | ⏳ Planned | — |
 | P8-M3 — Cross-linked READMEs | ⏳ Planned | — |
 
-**Phase status:** P0–P6 complete, P7 in progress. Next: P7-M2.
+**Phase status:** P0–P6 complete, P7 in progress. Next: P7-M3.
 
 - 21 milestones across 9 phases (0-8), ~140 test cases
 - v1 scope ends at P7-M3; Phase 8 is the portfolio integration
