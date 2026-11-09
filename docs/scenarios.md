@@ -18,7 +18,25 @@ Each scenario below is a long-lived draft pull request that shows one outcome on
 
 ## Screenshots
 
-_To be added: the job summary and the PR comment for #21, #22 and #23, and the notice for #20._
+Taken on 2026-11-09 from the public pages, logged out.
+
+**P6-M1-02, pass (#22).** The sticky PR comment with the mutation gate at exactly the threshold:
+
+<img src="images/comment-pass.png" alt="PR comment: AI provenance Pass, mutation score 80.00 at or above 80" width="720">
+
+**P6-M1-03, fail (#23).** The same comment, failing at 25 %:
+
+<img src="images/comment-fail.png" alt="PR comment: AI provenance Fail, mutation score 25.00 below 80" width="720">
+
+**P6-M1-03 and P6-M1-04 (#23).** The enforce job fails; the warn-mode job stays green with a warning. `ai-only` and `validate-report` still run:
+
+<img src="images/run-fail-warn.png" alt="Workflow run with provenance failed and provenance-warn green; annotations for verdict fail and verdict warn" width="720">
+
+**P6-M1-07, fork PR (#20).** All jobs are green. The comment is skipped with a notice, because fork PRs get a read-only token:
+
+<img src="images/fork-notice.png" alt="Workflow run for the fork PR: all jobs green; notice says the PR comment was skipped because the token cannot write" width="720">
+
+The job summaries are only visible when signed in to GitHub, so they are not shown here. They have the same content as the PR comments.
 
 ## How the scenario PRs are built
 

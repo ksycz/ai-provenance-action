@@ -4,6 +4,18 @@ Reusable GitHub Action that records **declared** AI-assisted pull-request change
 
 **Status:** Phases 1–5 are complete: the Action reads the PR and the base-branch policy, evaluates the gates, writes the job summary, uploads the JSON report and keeps one sticky PR comment up to date. Next: Phase 6, running it on real pull requests. See [docs/ROADMAP.md](./docs/ROADMAP.md), [docs/configuration.md](./docs/configuration.md), [docs/report-format.md](./docs/report-format.md) and [docs/threat-model.md](./docs/threat-model.md).
 
+## What it looks like
+
+On a pull request with AI-assisted commits, the Action keeps one comment up to date. Here the mutation gate fails, because the AI-touched code has a mutation score of 25 % against a threshold of 80 % ([scenario PR #23](https://github.com/ksycz/ai-provenance-action/pull/23)):
+
+<img src="docs/images/comment-fail.png" alt="PR comment from github-actions: AI provenance Fail, mutation gate 25.00 below 80, with the AI-tagged commit and the files it touched" width="720">
+
+The same policy can run in warn mode. The enforce job fails the check, while the warn job stays green with a warning annotation:
+
+<img src="docs/images/run-fail-warn.png" alt="Workflow run: provenance job failed, provenance-warn job green, annotations show verdict fail and verdict warn" width="720">
+
+More scenarios, including a passing PR and a PR from a fork, are in [docs/scenarios.md](./docs/scenarios.md).
+
 ## Quick start
 
 Add a workflow that runs on pull requests. Until `v1` is released, point `uses:` at a commit SHA or at `./` inside this repository.
