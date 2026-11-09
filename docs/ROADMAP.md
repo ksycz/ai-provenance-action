@@ -2,7 +2,7 @@
 
 A milestone plan and progress log for **ai-provenance-action**: a reusable GitHub Action that records which pull-request changes were AI-assisted, applies a policy to them, and produces an audit report.
 
-**Current focus:** P0–P6 complete; the Action runs on this repository's own pull requests. Next: P7-M1 README and Marketplace metadata.
+**Current focus:** P0–P6 and P7-M1 complete. Next: P7-M2 threat model and security docs.
 
 ---
 
@@ -152,7 +152,7 @@ When the file is missing, built-in defaults apply: the four trailer rules from t
 | 4 | Audit report | ✅ Completed | Versioned JSON report and escaped Markdown rendering |
 | 5 | GitHub adapter | ✅ Completed | REST fetching with pagination and limits, outputs, summary, artifact, sticky comment, fork handling |
 | 6 | End-to-end and dogfooding | ✅ Completed | Self-test workflows running the bundled Action on real PRs |
-| 7 | Release and Marketplace | ⏳ Planned | README, threat model, release automation, `v1` tag |
+| 7 | Release and Marketplace | 🚧 In progress | README, threat model, release automation, `v1` tag |
 | 8 | Integration with playwright-test-ai-inspector | ⏳ Planned | Adopt the Action, demo PR, cross-linked READMEs |
 
 The phases run from easiest to hardest: Phases 1-4 are pure functions with fixtures, Phase 5 introduces I/O behind mocks, and Phases 6-8 run against real GitHub.
@@ -913,12 +913,12 @@ An `e2e.yml` workflow runs `uses: ./` on this repo's own PRs, and a set of long-
 
 # Phase 7 — Release and Marketplace
 
-**Status:** ⏳ Planned · **Focus:** a README a recruiter or adopter can read in two minutes, and a repeatable release.
+**Status:** 🚧 In progress · **Focus:** a README a recruiter or adopter can read in two minutes, and a repeatable release.
 
 ## P7-M1 — README and Marketplace metadata
 
-**Status:** ⏳ Planned
-**Completed:** —
+**Status:** ✅ Completed
+**Completed:** 2026-11-09
 **Dependencies:** P6-M1
 
 ### Scope
@@ -931,17 +931,25 @@ An `e2e.yml` workflow runs `uses: ./` on this repo's own PRs, and a set of long-
 
 | ID | Scenario |
 |---|---|
-| P7-M1-01 | Quick-start workflow copied verbatim from the README runs green on a fresh test repo |
+| ~~P7-M1-01~~ | ~~Quick-start workflow copied verbatim from the README runs green on a fresh test repo~~ Moved to P7-M3: the quick start uses `@v1`, which only exists after the first release |
 | P7-M1-02 | Every input and output in `action.yml` appears in the README (doc test from P5-M3) |
-| P7-M1-03 | Markdown link check passes |
+| P7-M1-03 | Markdown link check passes (relative links, images and in-page anchors in the README and `docs/`) |
+| P7-M1-04 | `action.yml` has a description of at most 125 characters and branding (icon and colour) |
+| P7-M1-05 | The README has every section listed in the scope |
 
 ### Acceptance criteria
 
-- [ ] All P7-M1 cases pass
+- [x] All P7-M1 cases pass (P7-M1-01 moved to P7-M3)
 
 ### Implementation notes
 
-_To be filled in after completion._
+**Summary:** The README now opens with badges and three bullets on what the Action does, the end-to-end screenshots, a copy-paste quick start, a configuration example, the permissions, the inputs and outputs, "What this is not", and a table mapping the report to ISO/IEC 42001 and ISO/IEC 27001 controls, phrased as evidence that supports them. `action.yml` already had a description of at most 125 characters and branding.
+
+**Architectural decisions:** The link check is a Vitest test (`test/P7-M1.readme.test.ts`) that resolves every relative link, image and in-page anchor offline, so it runs with the rest of the suite and needs no network. External links are not checked, to keep CI deterministic. The standard controls in the mapping table were checked against public control lists: ISO/IEC 42001 A.9 and A.10; ISO/IEC 27001:2022 8.32, 8.29, 8.15 and 5.33. The coverage badge is a static badge for the enforced threshold, since the repository uses no coverage service.
+
+**Deviations:** P7-M1-01 is moved to P7-M3, because the quick start uses `@v1`. Added P7-M1-04 and P7-M1-05. Each link check was shown to fail on a broken file link, a broken anchor and a broken image.
+
+**Tests implemented:** P7-M1-02 (via P5-M3-07), P7-M1-03, P7-M1-04 and P7-M1-05.
 
 ## P7-M2 — Threat model and security docs
 
@@ -979,6 +987,7 @@ A `release.yml` workflow triggered by a `vX.Y.Z` tag: verifies `dist/` is curren
 | P7-M3-02 | A tag on a commit where `dist/` is stale fails the release |
 | P7-M3-03 | A pre-release tag (`v1.1.0-rc.1`) does not move `v1` |
 | P7-M3-04 | `uses: ksycz/ai-provenance-action@v1` from another repo resolves to the latest `v1.x` |
+| P7-M3-05 | Quick-start workflow copied verbatim from the README runs green on a fresh test repo (moved from P7-M1-01) |
 
 ### Acceptance criteria
 
@@ -1109,14 +1118,14 @@ P0-M1 Scaffold
 | P5-M3 — Outputs, job summary and artifact | ✅ Completed | 2026-11-08 |
 | P5-M4 — Sticky PR comment and fork PRs | ✅ Completed | 2026-11-08 |
 | P6-M1 — Self-test workflow and scenario PRs | ✅ Completed | 2026-11-09 |
-| P7-M1 — README and Marketplace metadata | ⏳ Planned | — |
+| P7-M1 — README and Marketplace metadata | ✅ Completed | 2026-11-09 |
 | P7-M2 — Threat model and security docs | ⏳ Planned | — |
 | P7-M3 — Release automation | ⏳ Planned | — |
 | P8-M1 — Adopt the Action | ⏳ Planned | — |
 | P8-M2 — Demo PR | ⏳ Planned | — |
 | P8-M3 — Cross-linked READMEs | ⏳ Planned | — |
 
-**Phase status:** P0–P6 complete. Next: P7-M1.
+**Phase status:** P0–P6 complete, P7 in progress. Next: P7-M2.
 
 - 21 milestones across 9 phases (0-8), ~140 test cases
 - v1 scope ends at P7-M3; Phase 8 is the portfolio integration

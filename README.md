@@ -1,8 +1,18 @@
 # AI Provenance Audit (`ai-provenance-action`)
 
-Reusable GitHub Action that records **declared** AI-assisted pull-request changes, evaluates policy gates from other jobs, and publishes an audit report. It produces **evidence that supports an audit**; it does not detect AI code or certify compliance.
+[![ci](https://github.com/ksycz/ai-provenance-action/actions/workflows/ci.yml/badge.svg)](https://github.com/ksycz/ai-provenance-action/actions/workflows/ci.yml)
+[![check-dist](https://github.com/ksycz/ai-provenance-action/actions/workflows/check-dist.yml/badge.svg)](https://github.com/ksycz/ai-provenance-action/actions/workflows/check-dist.yml)
+[![e2e](https://github.com/ksycz/ai-provenance-action/actions/workflows/e2e.yml/badge.svg)](https://github.com/ksycz/ai-provenance-action/actions/workflows/e2e.yml)
+[![core coverage](https://img.shields.io/badge/core%20coverage-%E2%89%A595%25%20enforced%20in%20CI-brightgreen)](./vitest.config.ts)
+[![release](https://img.shields.io/github/v/release/ksycz/ai-provenance-action?include_prereleases&label=release)](https://github.com/ksycz/ai-provenance-action/releases)
 
-**Status:** Phases 1–5 are complete: the Action reads the PR and the base-branch policy, evaluates the gates, writes the job summary, uploads the JSON report and keeps one sticky PR comment up to date. Phase 6 is complete too: the Action runs on this repository's own pull requests (see [docs/scenarios.md](./docs/scenarios.md)). Next: Phase 7, the first release. See [docs/ROADMAP.md](./docs/ROADMAP.md), [docs/configuration.md](./docs/configuration.md), [docs/report-format.md](./docs/report-format.md) and [docs/threat-model.md](./docs/threat-model.md).
+A GitHub Action that makes AI-assisted changes in a pull request visible, checks them against your policy, and keeps a record. It produces **evidence that supports an audit**; see [what this is not](#what-this-is-not) and [evidence for audits](#evidence-for-audits).
+
+## What it does
+
+- **Finds what was declared as AI-assisted.** It reads commit trailers such as `Co-authored-by: Claude …` or `Co-authored-by: GitHub Copilot …`, or an `ai-assisted` label on the PR, and maps them to the files and lines those commits added.
+- **Checks your policy on those changes.** Gates read evidence from other jobs: a minimum mutation score from a Stryker report on the AI-touched files, a required label such as `ai-reviewed`, or an approval from someone other than the author. Each gate can enforce or only warn.
+- **Keeps a record.** A versioned JSON report is uploaded as a workflow artifact. The result also appears as a job summary and, optionally, as one PR comment that updates itself.
 
 ## What it looks like
 
@@ -18,7 +28,7 @@ More scenarios, including a passing PR and a PR from a fork, are in [docs/scenar
 
 ## Quick start
 
-Add a workflow that runs on pull requests. Until `v1` is released, point `uses:` at a commit SHA or at `./` inside this repository.
+Add a workflow that runs on pull requests:
 
 ```yaml
 name: ai-provenance
@@ -43,6 +53,31 @@ jobs:
 ```
 
 `labeled` and `pull_request_review` re-run the check when someone adds the `ai-reviewed` label or approves, because gates are evaluated when the workflow runs.
+
+## Configuration
+
+Without a config file, the Action uses built-in defaults: the common AI trailers, the `ai-assisted` label, and **no gates** (report only). To add gates, commit `.github/ai-provenance.yml` to your default branch. The Action always reads it from the PR's **base** branch, so a pull request cannot weaken the policy that judges it.
+
+```yaml
+version: 1
+policy:
+  mode: enforce # or warn: failing gates only add a warning
+  gates:
+    - id: mutation
+      type: mutation-score
+      threshold: 80 # percent, measured on AI-touched files
+      scope: ai-files
+      on-missing: fail # fail | warn | skip when no report is given
+    - id: reviewed
+      type: required-label
+      label: ai-reviewed
+      mode: warn
+    - id: human-approval
+      type: approvals
+      min: 1
+```
+
+Every field is described in [docs/configuration.md](./docs/configuration.md), and the report format in [docs/report-format.md](./docs/report-format.md). The mutation gate reads a Stryker `mutation.json` that an earlier job produced; pass its path with the `mutation-report` input.
 
 ## Permissions and fork pull requests
 
@@ -75,6 +110,30 @@ jobs:
 | `ai_files`    | `["src/a.ts"]`              | JSON array of files touched by AI-tagged commits.                              |
 | `report_path` | `ai-provenance-report.json` | Path of the written JSON report.                                               |
 | `verdict`     | `pass`                      | Overall policy result: `pass`, `warn` or `fail`. A `fail` also fails the step. |
+
+## What this is not
+
+- **Not AI detection.** The Action does not guess whether code was written by AI. It records what contributors **declared**, through trailers and labels. A commit without a trailer is not evidence of human authorship, and every report says so.
+- **Not proof.** Trailers and labels can be added or left out by anyone who writes the commit. The value is a consistent record, and rules that run automatically on what was declared.
+- **Not certification.** The Action does not make anyone compliant with a standard. It produces evidence that an auditor can use.
+
+The [threat model](./docs/threat-model.md) lists what the Action protects against and what is left to your team.
+
+## Evidence for audits
+
+The report can serve as evidence that **supports** controls in these standards. Whether a control is met is decided by your organization and its auditor, not by this Action.
+
+| Standard           | Control                                                     | What the Action contributes                                                                                   |
+| ------------------ | ----------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| ISO/IEC 42001:2023 | A.9 Use of AI systems (A.9.2 processes for responsible use) | A documented, automated check that AI-assisted changes go through the review and testing your policy requires |
+| ISO/IEC 42001:2023 | A.10 Third-party and customer relationships                 | A record of which external AI tools (Claude, Copilot, …) contributed to which changes                         |
+| ISO/IEC 27001:2022 | 8.32 Change management                                      | Each PR's AI-assisted changes, the gates applied and the verdict, tied to the PR and commit SHAs              |
+| ISO/IEC 27001:2022 | 8.29 Security testing in development and acceptance         | Mutation-score evidence for AI-touched code, read from your test jobs                                         |
+| ISO/IEC 27001:2022 | 8.15 Logging and 5.33 Protection of records                 | A versioned JSON report per run, with the SHA-256 of the policy that was applied, kept as a workflow artifact |
+
+## Project status
+
+Phases 0–6 of the [roadmap](./docs/ROADMAP.md) are complete: the Action runs end to end and is tested on this repository's own pull requests ([docs/scenarios.md](./docs/scenarios.md)). Next is the first release, `v1`. Until then, reference a commit SHA instead of `@v1`.
 
 ## Development
 
