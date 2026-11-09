@@ -2,7 +2,7 @@
 
 A milestone plan and progress log for **ai-provenance-action**: a reusable GitHub Action that records which pull-request changes were AI-assisted, applies a policy to them, and produces an audit report.
 
-**Current focus:** P0–P5 complete; the Action runs end to end with its sticky PR comment. Now: P6-M1 self-test workflow and scenario PRs (all scenarios verified on real GitHub, screenshots and the squash-merge check left).
+**Current focus:** P0–P6 complete; the Action runs on this repository's own pull requests. Next: P7-M1 README and Marketplace metadata.
 
 ---
 
@@ -151,7 +151,7 @@ When the file is missing, built-in defaults apply: the four trailer rules from t
 | 3 | Policy engine | ✅ Completed | Gate evaluation, enforce/warn, Stryker mutation score, label and approval gates |
 | 4 | Audit report | ✅ Completed | Versioned JSON report and escaped Markdown rendering |
 | 5 | GitHub adapter | ✅ Completed | REST fetching with pagination and limits, outputs, summary, artifact, sticky comment, fork handling |
-| 6 | End-to-end and dogfooding | 🚧 In progress | Self-test workflows running the bundled Action on real PRs |
+| 6 | End-to-end and dogfooding | ✅ Completed | Self-test workflows running the bundled Action on real PRs |
 | 7 | Release and Marketplace | ⏳ Planned | README, threat model, release automation, `v1` tag |
 | 8 | Integration with playwright-test-ai-inspector | ⏳ Planned | Adopt the Action, demo PR, cross-linked READMEs |
 
@@ -864,12 +864,12 @@ Create or update one comment identified by the hidden marker, and degrade gracef
 
 # Phase 6 — End-to-end and dogfooding
 
-**Status:** 🚧 In progress · **Focus:** prove the bundled `dist/` works on real GitHub, not only under mocks.
+**Status:** ✅ Completed · **Focus:** prove the bundled `dist/` works on real GitHub, not only under mocks.
 
 ## P6-M1 — Self-test workflow and scenario PRs
 
-**Status:** 🚧 In progress
-**Completed:** —
+**Status:** ✅ Completed
+**Completed:** 2026-11-09
 **Dependencies:** P5-M4
 
 ### Goal
@@ -892,16 +892,22 @@ An `e2e.yml` workflow runs `uses: ./` on this repo's own PRs, and a set of long-
 
 ### Acceptance criteria
 
-- [ ] All scenario runs are linked from `docs/scenarios.md` with screenshots of the summary and comment
-- [ ] E2E runs on every PR to `main`
+- [x] All scenario runs are linked from `docs/scenarios.md` with screenshots of the summary and comment (comments and runs; see Deviations)
+- [x] E2E runs on every PR to `main`
 
 ### Completion checklist
 
-- [ ] Implementation notes filled in
+- [x] Implementation notes filled in
 
 ### Implementation notes
 
-_To be filled in after completion._
+**Summary:** `.github/workflows/e2e.yml` runs the committed bundle (`uses: ./`) on every PR to `main`. It has four jobs: `provenance` (enforce, sticky comment), `provenance-warn` (the same policy in warn mode), `ai-only` (runs only when `ai_tagged == 'true'`) and `validate-report` (downloads the artifact and checks it against the schema with `scripts/validate-report.mjs`). This repository's own policy (`.github/ai-provenance.yml`) sets a mutation gate at 80 % on AI-touched files, skipped when there is no report. Every scenario was verified on real GitHub and is linked from `docs/scenarios.md`: #20 fork, #21 no AI, #22 pass at 80 %, #23 fail at 25 % plus warn mode, and #24 squash merge.
+
+**Architectural decisions:** Warn mode is a second job with its own config path, so one scenario PR shows both outcomes. The scenario PRs carry a Stryker-format `e2e/mutation.json` that stands in for a mutation-testing job; a real Stryker job comes with P8-M1. The fork scenario uses a free organization (`ksycz-lab`) as the fork owner, so no second account is needed. `ai-only` passes `ai_files` through an environment variable, because file names are untrusted input.
+
+**Deviations:** The first real run found a bug that the mocked tests could not: the CommonJS bundle was named `dist/index.js` in a `"type": "module"` package and did not start (`require is not defined`). It is now `dist/index.cjs`, and P6-M1-09 starts the exact file from `action.yml`. The earlier smoke test had run the bundle outside the repository, away from `package.json`. The same run showed that `actionlint` v1.7.7 rejects `runs.using: node24`; it is bumped to v1.7.12, and the official actions moved to their Node 24 majors. The screenshots were taken logged out from the public pages: PR comments, run graphs and annotations. Job summaries need a GitHub login, so the PR comments, which have the same content, stand in for them. The squash merge (P6-M1-06) dropped the trailers from `main`, while the PR's comment and report kept them.
+
+**Tests implemented:** P6-M1-01 … P6-M1-08 as live scenario PRs (results in `docs/scenarios.md`), and P6-M1-09 as a Vitest test.
 
 ---
 
@@ -1102,7 +1108,7 @@ P0-M1 Scaffold
 | P5-M2 — Config from the base branch | ✅ Completed | 2026-11-08 |
 | P5-M3 — Outputs, job summary and artifact | ✅ Completed | 2026-11-08 |
 | P5-M4 — Sticky PR comment and fork PRs | ✅ Completed | 2026-11-08 |
-| P6-M1 — Self-test workflow and scenario PRs | 🚧 In progress | — |
+| P6-M1 — Self-test workflow and scenario PRs | ✅ Completed | 2026-11-09 |
 | P7-M1 — README and Marketplace metadata | ⏳ Planned | — |
 | P7-M2 — Threat model and security docs | ⏳ Planned | — |
 | P7-M3 — Release automation | ⏳ Planned | — |
@@ -1110,7 +1116,7 @@ P0-M1 Scaffold
 | P8-M2 — Demo PR | ⏳ Planned | — |
 | P8-M3 — Cross-linked READMEs | ⏳ Planned | — |
 
-**Phase status:** P0–P5 complete. Next: P6-M1.
+**Phase status:** P0–P6 complete. Next: P7-M1.
 
 - 21 milestones across 9 phases (0-8), ~140 test cases
 - v1 scope ends at P7-M3; Phase 8 is the portfolio integration
