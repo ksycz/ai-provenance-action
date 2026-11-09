@@ -117,7 +117,7 @@ Every field is described in [docs/configuration.md](./docs/configuration.md), an
 - **Not proof.** Trailers and labels can be added or left out by anyone who writes the commit. The value is a consistent record, and rules that run automatically on what was declared.
 - **Not certification.** The Action does not make anyone compliant with a standard. It produces evidence that an auditor can use.
 
-The [threat model](./docs/threat-model.md) lists what the Action protects against and what is left to your team.
+The [threat model](./docs/threat-model.md) lists what the Action protects against and what is left to your team. To report a vulnerability, see [SECURITY.md](./SECURITY.md).
 
 ## Evidence for audits
 
