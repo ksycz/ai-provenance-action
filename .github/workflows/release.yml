@@ -1,0 +1,56 @@
+name: release
+
+# Push a tag like v1.2.3 to release. Pre-release tags (v1.3.0-rc.1) are released
+# as pre-releases and do not move the major tag.
+on:
+  push:
+    tags: ["v*.*.*"]
+
+permissions:
+  contents: write # create the release and move the major tag
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - name: Tests
+        run: npm test
+      - name: dist/ must match the source
+        run: |
+          npm run build
+          git diff --exit-code dist/
+      - name: Tag must match package.json
+        env:
+          TAG: ${{ github.ref_name }}
+        run: node scripts/release.ts check-version "$TAG"
+      - id: plan
+        name: Plan the release
+        env:
+          TAG: ${{ github.ref_name }}
+        run: node scripts/release.ts plan "$TAG" >> "$GITHUB_OUTPUT"
+      - name: Create the GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+          VERSION: ${{ steps.plan.outputs.version }}
+          PRERELEASE: ${{ steps.plan.outputs.prerelease }}
+        run: |
+          node scripts/release.ts notes "$VERSION" > release-notes.md
+          flags=(--verify-tag --title "$TAG" --notes-file release-notes.md)
+          if [ "$PRERELEASE" = "true" ]; then flags+=(--prerelease); fi
+          gh release create "$TAG" "${flags[@]}"
+      - name: Move the major tag
+        if: steps.plan.outputs.major_tag != ''
+        env:
+          MAJOR: ${{ steps.plan.outputs.major_tag }}
+        run: |
+          git tag --force "$MAJOR" "$GITHUB_SHA"
+          git push --force origin "refs/tags/$MAJOR"

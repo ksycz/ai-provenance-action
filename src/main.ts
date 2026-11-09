@@ -3,7 +3,8 @@ import * as core from "@actions/core";
 import * as github from "@actions/github";
 import type { EventContext } from "./adapters/fetch-pull-request.js";
 import { run } from "./adapters/run.js";
-import { actionVersion } from "./core/version.js";
+import packageJson from "../package.json" with { type: "json" };
+import { actionCommitSha, actionVersion } from "./core/version.js";
 
 /** Entry point: build the real dependencies from the runner and hand them to run(). */
 async function main(): Promise<void> {
@@ -39,7 +40,8 @@ async function main(): Promise<void> {
       runAttempt: Number(process.env.GITHUB_RUN_ATTEMPT) || 1,
     },
     workspace: process.env.GITHUB_WORKSPACE ?? process.cwd(),
-    actionVersion: actionVersion(process.env.ACTION_VERSION),
+    actionVersion: actionVersion(packageJson.version),
+    actionCommitSha: actionCommitSha(process.env.GITHUB_ACTION_REF),
     now: () => new Date(),
   });
 }

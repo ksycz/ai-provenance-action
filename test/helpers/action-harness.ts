@@ -181,6 +181,7 @@ export function setup(
     },
     workspace,
     actionVersion: "0.1.0",
+    actionCommitSha: null,
     now: () => new Date("2026-11-08T19:00:00.000Z"),
     sleep: async () => {},
   };
