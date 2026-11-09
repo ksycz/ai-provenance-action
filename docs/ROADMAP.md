@@ -2,7 +2,7 @@
 
 A milestone plan and progress log for **ai-provenance-action**: a reusable GitHub Action that records which pull-request changes were AI-assisted, applies a policy to them, and produces an audit report.
 
-**Current focus:** P0–P5 complete; the Action runs end to end with its sticky PR comment. Now: P6-M1 self-test workflow and scenario PRs (workflow in place, scenario PRs next).
+**Current focus:** P0–P5 complete; the Action runs end to end with its sticky PR comment. Now: P6-M1 self-test workflow and scenario PRs (all scenarios verified on real GitHub, screenshots and the squash-merge check left).
 
 ---
 
